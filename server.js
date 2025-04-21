@@ -27,11 +27,6 @@ app.post("/create-verification-session", async (req, res) => {
   }
 });
 
-// (Optionnel) Sert un index.html si tu en as un
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Serveur lancé sur http://0.0.0.0:${PORT}`);
 });
