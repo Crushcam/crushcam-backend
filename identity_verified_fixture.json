@@ -1,0 +1,13 @@
+{
+  "event": {
+    "type": "identity.verification_session.verified",
+    "data": {
+      "object": {
+        "id": "vs_test_123",
+        "metadata": {
+          "user_id": "demo_user"
+        }
+      }
+    }
+  }
+}
