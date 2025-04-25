@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const admin = require('firebase-admin');
-const serviceAccount = require('./firebase-service-account.json'); // Mets ton vrai fichier ici
 
 if (!admin.apps.length) {
   admin.initializeApp({
