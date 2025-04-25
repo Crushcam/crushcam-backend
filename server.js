@@ -76,9 +76,9 @@ app.post(
         }
 
         const data = userDoc.data();
-        const nom = (data.nom || '').toLowerCase().trim();
-        const prenom = (data.prenom || '').toLowerCase().trim();
-        const ageTexte = (data.date_naissance || '').replace(' ans', '').trim();
+        const firestoreNom = (data.nom || '').toLowerCase().trim();
+        const firestorePrenom = (data.prenom || '').toLowerCase().trim();
+        const firestoreNaissance = (data.date_naissance || '').replace(' ans', '').trim();
 
         const fullSession = await stripe.identity.verificationSessions.retrieve(session.id, {
           expand: ['last_verification_report.document']
@@ -87,7 +87,6 @@ app.post(
         const docInfo = fullSession.last_verification_report.document;
         const docNom = (docInfo.name?.last_name || '').toLowerCase().trim();
         const docPrenom = (docInfo.name?.first_name || '').toLowerCase().trim();
-
         const dob = docInfo.dob;
         const now = new Date();
         const birthDate = new Date(dob.year, dob.month - 1, dob.day);
@@ -97,19 +96,34 @@ app.post(
           age--;
         }
 
-        console.log('📄 Comparaison :', { nom, prenom, ageTexte, docNom, docPrenom, age });
+        console.log('📄 Comparaison :', { firestoreNom, firestorePrenom, firestoreNaissance, docNom, docPrenom, age });
 
-        if (nom === docNom && prenom === docPrenom && ageTexte === age.toString()) {
-          await userRef.update({ isVerified: true });
-          console.log('✅ Utilisateur confirmé et vérifié');
-        } else {
-          console.log('❌ Données non conformes — suppression');
-          await userRef.delete();
-          await admin.auth().deleteUser(userId);
-          return res.status(403).json({
-            error: 'Données non conformes — compte supprimé'
-          });
+        const updates = {};
+        let corrected = false;
+
+        if (firestoreNom !== docNom) {
+          updates.nom = docNom;
+          corrected = true;
         }
+        if (firestorePrenom !== docPrenom) {
+          updates.prenom = docPrenom;
+          corrected = true;
+        }
+        if (firestoreNaissance !== age.toString()) {
+          updates.date_naissance = `${age} ans`;
+          corrected = true;
+        }
+
+        updates.isVerified = true; // Toujours ajouter isVerified = true
+
+        await userRef.update(updates);
+
+        if (corrected) {
+          console.log('✅ Infos corrigées et utilisateur vérifié');
+        } else {
+          console.log('✅ Infos inchangées, utilisateur vérifié');
+        }
+
       } catch (error) {
         console.error('❌ Erreur traitement Firestore :', error);
         return res.status(500).json({ error: 'Erreur serveur Firebase' });
