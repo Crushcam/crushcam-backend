@@ -24,10 +24,12 @@ app.post(
   express.json(),
   async (req, res) => {
     try {
-      const session = await stripe.identity.verificationSessions.create({
-        type: 'document',
-        metadata: { user_id: req.body.userId || 'demo_user' },
-      });
+const session = await stripe.identity.verificationSessions.create({
+  type: 'document',
+  metadata: { user_id: req.body.userId || 'demo_user' },
+  return_url: 'crushcam://verification-success', // <--- Ajout important ici
+});
+
       console.log('✅ Lien Stripe généré :', session.url);
       return res.json({ url: session.url });
     } catch (err) {
