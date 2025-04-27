@@ -27,7 +27,7 @@ app.post(
 const session = await stripe.identity.verificationSessions.create({
   type: 'document',
   metadata: { user_id: req.body.userId || 'demo_user' },
-  return_url: 'crushcam://verification-success', // <--- Ajout important ici
+return_url: 'https://crushcam.app/verification-success',
 });
 
       console.log('✅ Lien Stripe généré :', session.url);
